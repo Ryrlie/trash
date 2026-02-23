@@ -54,6 +54,13 @@
             border: var(--border);
             background-color: var(--card-bg);
             box-shadow: 4px 4px 0px var(--text-color);
+            transition: all 0.2s;
+        }
+        
+        /* 聚焦时的微交互 */
+        .submit-area:focus-within {
+             box-shadow: 6px 6px 0px var(--text-color);
+             transform: translate(-2px, -2px);
         }
 
         textarea {
@@ -79,6 +86,10 @@
             transition: transform 0.1s;
         }
 
+        button:hover {
+            opacity: 0.9;
+        }
+
         button:active {
             transform: translateY(2px);
         }
@@ -101,6 +112,12 @@
             border: var(--border);
             padding: 20px;
             box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease; /* 新卡片出现的动画 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card-title {
@@ -115,6 +132,7 @@
             font-size: 0.95rem;
             color: #333;
             margin-bottom: 15px;
+            white-space: pre-wrap; /* 保留换行符 */
         }
 
         .card-meta {
@@ -141,56 +159,63 @@
 
     <div class="container">
         <div class="submit-area clearfix">
-            <textarea placeholder="把你想扔掉的废话、草稿、碎碎念丢进来吧..."></textarea>
-            <button>丢进 Trash</button>
+            <textarea id="trashInput" placeholder="把你想扔掉的废话、草稿、碎碎念丢进来吧..."></textarea>
+            <button id="throwBtn">丢进 Trash</button>
         </div>
 
-        <div class="grid">
+        <div class="grid" id="trashGrid">
             <div class="card">
                 <div class="card-title">星期二的雨</div>
-                <div class="card-content">
-                    刚才下楼买咖啡，伞被风吹翻了。突然觉得挺好笑的，生活就是这样，你以为准备好了，它偏要给你捣乱。算了，咖啡还是挺好喝的。
-                </div>
+                <div class="card-content">刚才下楼买咖啡，伞被风吹翻了。突然觉得挺好笑的，生活就是这样。</div>
                 <div class="card-meta">
                     <span>匿名</span>
                     <span class="tag">#日常琐事</span>
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-title">一段没用上的前言</div>
-                <div class="card-content">
-                    “在这庞大的数据流中，我们试图寻找某种规律，但往往只能看到一片混沌。” —— 这句话写在报告里太装了，删了，扔这里吧。
-                </div>
-                <div class="card-meta">
-                    <span>打工人007</span>
-                    <span class="tag">#废弃草稿</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">无题</div>
-                <div class="card-content">
-                    晚上睡不着，耳机里一直循环同一首日文歌。明天还有一堆事情要处理，但我现在只想发呆。
-                </div>
-                <div class="card-meta">
-                    <span>夜猫子</span>
-                    <span class="tag">#深夜矫情</span>
-                </div>
-            </div>
-
-             <div class="card">
-                <div class="card-title">灵感碎片</div>
-                <div class="card-content">
-                    如果把所有的云朵都收集起来，能不能做一张巨大的蹦床？（写小说可以用到，先记下来，大概率会忘）
-                </div>
-                <div class="card-meta">
-                    <span>脑洞机</span>
-                    <span class="tag">#灵光一闪</span>
-                </div>
-            </div>
         </div>
     </div>
 
+    <script>
+        // 1. 找到页面上的按钮、输入框和展示区
+        const button = document.getElementById('throwBtn');
+        const input = document.getElementById('trashInput');
+        const grid = document.getElementById('trashGrid');
+
+        // 2. 监听按钮的点击事件
+        button.addEventListener('click', function() {
+            // 获取用户输入的内容
+            const text = input.value;
+
+            // 如果输入框是空的，弹窗提醒
+            if (text.trim() === "") {
+                alert("垃圾桶是空的！写点什么再扔吧。");
+                return;
+            }
+
+            // 3. 创建一个新的卡片元素
+            const newCard = document.createElement('div');
+            newCard.className = 'card';
+            
+            // 获取当前时间作为标题的一部分
+            const now = new Date();
+            const timeStr = now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
+
+            // 填充卡片内容
+            newCard.innerHTML = `
+                <div class="card-title">刚刚扔掉的 (${timeStr})</div>
+                <div class="card-content">${text}</div>
+                <div class="card-meta">
+                    <span>我</span>
+                    <span class="tag">#新垃圾</span>
+                </div>
+            `;
+
+            // 4. 把新卡片插到展示区的最前面
+            grid.insertBefore(newCard, grid.firstChild);
+
+            // 5. 清空输入框
+            input.value = "";
+        });
+    </script>
 </body>
 </html>
